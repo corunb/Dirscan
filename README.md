@@ -61,6 +61,32 @@ windows: 终端进行代理后
 
 ### 0x03 使用方式：
 
+#### 参数：
+
+```
+-R string
+        指定G->Get扫描还是H->Head扫描 (default "G")
+  -T int
+        设置线程，默认10 (default 10)
+  -ei string
+        忽略指定状态码,示例：200,403,404,500或者200-400
+  -f string
+        指定目录字典 (default "./dic/dicc.txt")
+  -i string
+        筛选指定状态码,示例：200,403,404,500或者200-400 (default "100-599")
+  -o string
+        保存扫描结果,默认输出日期+地址
+  -r    进行递归扫描
+  -t int
+        设置延时时间，默认5s (default 5)
+  -u string
+        指定url
+  -uf string
+        指定url列表
+
+```
+
+
 #### 			GET扫描:
 
 ```
@@ -82,7 +108,7 @@ windows: 终端进行代理后
 
 ```
 ./Dirscan -u http://xxx.xxx.xxx.xxx -i 200,302
-筛选状态码可支持单个，多个，和区间赛选，区间可为-i 200-302
+筛选状态码可支持单个，多个，和区间筛选，区间可为-i 200-302
 ```
 
 ![image-20221011154638347](./image//image-20221011154638347.png)
