@@ -23,6 +23,14 @@ var BiaoJi []string
 
 // Scans 单个扫描
 func Scans(url string) {
+	//fmt.Printf("\r\033[30B  %v\n","test")
+	//setOfDigits := spinner.GenerateNumberSequence(len(ReadFile(Pathfile)))
+	//ss := spinner.New(setOfDigits, 100*time.Millisecond)
+	//进度条设置
+	//ss := spinner.New(spinner.CharSets[35], 100*time.Millisecond)
+	//ss.Color("green")
+	//ss.Start()
+
 
 	//状态码判断是否输入错误
 	CodeIstrue(Codel(Rcode))
@@ -33,7 +41,10 @@ func Scans(url string) {
 
 
 	s := semaphore.NewWeighted(int64(Threads)) //设置线程
+
 	var w sync.WaitGroup
+
+
 
 	//并发扫描
 	for _,path := range dic {
@@ -41,6 +52,7 @@ func Scans(url string) {
 		go func(url string,path string) {
 			_ = s.Acquire(context.Background(), Weight)
 			if Requestmode == "G" {
+				//fmt.Println("a:",runtime.NumGoroutine())
 				GetScan(url,path)
 			}else if Requestmode == "H" {
 				HeadScan(url,path)
@@ -49,7 +61,9 @@ func Scans(url string) {
 			s.Release(Weight)
 			w.Done()
 		}(url,path)
+
 	}
+
 	w.Wait()
 
 	//递归扫描
@@ -71,6 +85,7 @@ func Scans(url string) {
 		}
 	}
 
+	//ss.Stop()
 }
 
 

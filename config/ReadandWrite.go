@@ -12,7 +12,7 @@ import (
 func ReadFile(fileName string) []string {
 	list, err := os.Open(fileName)
 	if err != nil {
-		fmt.Printf("Open %s error, %v", fileName, err)
+		fmt.Printf("Open %s error, %v\n", fileName, err)
 		os.Exit(0)
 	}
 	//defer list.Close()

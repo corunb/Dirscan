@@ -12,13 +12,6 @@ import (
 	"time"
 )
 
-////颜色红绿黄青蓝
-//var red = color.FgRed.Render
-//var green = color.FgGreen.Render
-//var Yellow = color.Yellow.Render
-//var Cyan = color.HiCyan.Render
-//var Blue = color.Blue.Render
-
 
 var Time = time.Now().Format("2006/01/02 15:04:05")
 
@@ -79,8 +72,6 @@ func arrayUnique(arr []int) []int {
 	}
 	return newArr
 }
-
-
 
 
 // Storage 转换大小
@@ -165,6 +156,9 @@ func InitConfig(path string) map[string]string {
 	f, err := os.Open(path)
 	if err != nil {
 		fmt.Println(err)
+		fmt.Println("请确认配置文件是否正常！")
+		Defaultfile()
+		os.Exit(0)
 	}
 
 	r := bufio.NewReader(f)
@@ -253,49 +247,50 @@ func difference(slice1, slice2 []int) []int {
 func GetPrint(respCode int,Bodylen string ,url string,path string) {
 	if respCode >= 200 && respCode < 300 {
 		Urlpath :=url+path
-		color.Green.Printf("%v\t[%v]\t%v\t - %v \n", Time,respCode,Bodylen,Urlpath)
+		color.Green.Printf("\r%v\t[%v]\t%v\t - %v \n", Time,respCode,Bodylen,Urlpath)
 		Write(Time+"\t"+"["+strconv.Itoa(respCode)+"]"+"\t"+Urlpath,url)
 	} else if respCode >= 300 && respCode < 400 {
-		color.Yellow.Printf("%v\t[%v]\t%v\t - %v %v \n", Time,respCode, Bodylen, path, Redirect)
+		color.Yellow.Printf("\r%v\t[%v]\t%v\t - %v %v \n", Time,respCode, Bodylen, path, Redirect)
 		Write(Time+"\t"+"["+strconv.Itoa(respCode)+"]"+"\t"+ path +"\t"+ Redirect,url)
 	} else if respCode >= 400 && respCode < 500 {
 		if respCode == 403 {
-			color.Red.Printf("%v\t[%v]\t%v\t - %v \n", Time,respCode, Bodylen, path)
+			color.Red.Printf("\r%v\t[%v]\t%v\t - %v \n", Time,respCode, Bodylen, path)
 			Write(Time+"\t"+"["+strconv.Itoa(respCode)+"]"+"\t"+path,url)
 		}else {
-			color.Blue.Printf("%v\t[%v]\t%v\t - %v \n", Time,respCode, Bodylen, path)
+			color.Blue.Printf("\r%v\t[%v]\t%v\t - %v \n", Time,respCode, Bodylen, path)
 		}
 
 	} else if respCode >= 500 && respCode < 600 {
-		color.Cyan.Printf("%v\t[%v]\t%v\t - %v \n", Time,respCode, Bodylen, path)
+		color.Cyan.Printf("\r%v\t[%v]\t%v\t - %v \n", Time,respCode, Bodylen, path)
 	} else {
-		fmt.Printf("%v\t[%v]\t%v\t - %v \n", Time,respCode, Bodylen, path)
+		fmt.Printf("\r%v\t[%v]\t%v\t - %v \n", Time,respCode, Bodylen, path)
 	}
+
+
 }
 
 // HeadPrint 结果显示
 func HeadPrint(respCode int ,url string,path string) {
 	if respCode >= 200 && respCode < 300 {
 		Urlpath := url + path
-		color.Green.Printf("%v - [%v] - %v \n", Time, respCode, Urlpath)
+		color.Green.Printf("\r%v - [%v] - %v \n", Time, respCode, Urlpath)
 		Write(Time+"\t"+"["+strconv.Itoa(respCode)+"]"+"\t"+Urlpath, url)
 	} else if respCode >= 300 && respCode < 400 {
 		//Urlpath := url + path
-		color.Yellow.Printf("%v- [%v] - %v  %v \n", Time, respCode, path, Redirect)
+		color.Yellow.Printf("\r%v- [%v] - %v  %v \n", Time, respCode, path, Redirect)
 		Write(Time+"\t"+"["+strconv.Itoa(respCode)+"]"+"\t"+path+"\t"+Redirect, url)
 	} else if respCode >= 400 && respCode < 500 {
 		if respCode == 403 {
-			color.Red.Printf("%v- [%v] - %v  \n", Time, respCode, path)
+			color.Red.Printf("\r%v- [%v] - %v  \n", Time, respCode, path)
 			Write(Time+"\t"+"["+strconv.Itoa(respCode)+"]"+"\t"+path, url)
 		}
-		color.Blue.Printf("%v- [%v] - %v  \n", Time, respCode, path)
+		color.Blue.Printf("\r%v- [%v] - %v  \n", Time, respCode, path)
 	} else if respCode >= 500 && respCode < 600 {
-		color.Cyan.Printf("%v- [%v] - %v  \n", Time, respCode, path)
+		color.Cyan.Printf("\r%v- [%v] - %v  \n", Time, respCode, path)
 	} else {
-		fmt.Printf("%v- [%v] - %v  \n", Time, respCode, path)
+		fmt.Printf("\r%v- [%v] - %v  \n", Time, respCode, path)
 	}
 }
-
 
 // RemoveRepByLoop 通过两重循环过滤重复元素数组去重
 func RemoveRepByLoop(slc []string) []string {
@@ -327,4 +322,36 @@ func Recursionchoose(respCode int ,url string,path string) {
 		//Recursionscan(url+path)
 		//}
 	}
+}
+
+
+func Defaultfile() {
+	//创建文件夹
+	err:=os.Mkdir("./default",os.ModePerm)
+	if err!=nil{
+		fmt.Println(err)
+	}
+
+	//创建文件
+	f, err := os.OpenFile("./default/default.ini", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+	if err != nil {
+		fmt.Println("file create failed. err: " + err.Error())
+	} else {
+		// offset
+		//os.Truncate(filename, 0) //clear
+		n, _ := f.Seek(0, os.SEEK_END)
+		str := `
+//默认字典
+Pathfile=./dic/dicc.txt
+
+//默认显示状态码区间
+Rcode=100-599
+
+//默认扫描方式
+Requestmode=G`
+		_, err = f.WriteAt([]byte(str), n)
+
+		fmt.Println("【+】write succeed!已重新生成配置文件，请重新运行程序！")
+	}
+
 }

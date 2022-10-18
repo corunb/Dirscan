@@ -40,7 +40,7 @@ func init() {
  █    █   █     █▀  ▀ █   ▀  █▀  ▀  ▀   █  █▀  █ 
  █    █   █     █      ▀▀▀▄  █      ▄▀▀▀█  █   █ 
  █▄▄▄▀  ▄▄█▄▄   █     ▀▄▄▄▀  ▀█▄▄▀  ▀▄▄▀█  █   █ 
-				--code by Corun V1.2.1
+				--code by Corun V1.2.2
 `
 	color.Green.Println(logo)
 
