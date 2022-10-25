@@ -18,6 +18,7 @@ var Time = time.Now().Format("2006/01/02 15:04:05")
 // Codel code 输入范围转换为数组
 func Codel(code string) []int{
 	var codes []int
+	//Trim：去掉前后端指定的字符；Split：以指定的字符为标准分割字符串
 	codeArr := strings.Split(strings.Trim(code, ","), ",")
 	for _, v := range codeArr {
 		codeArr2 := strings.Split(strings.Trim(v, "-"), "-")
@@ -26,21 +27,25 @@ func Codel(code string) []int{
 			fmt.Println(err)
 		}
 
-		codes = append(codes, startPort)
 		if len(codeArr2) > 1 {
-
 			endPort, _ := filterCode(codeArr2[1])
 			if endPort > startPort {
-				for i := 1; i <= endPort-startPort; i++ {
-					codes = append(codes, startPort+i)
+				for i := startPort; i <= endPort; i++ {
+					codes = append(codes,i )
+				}
+			}else {
+				for i := endPort; i <= startPort; i++ {
+					codes = append(codes,i )
 				}
 			}
+		}else {
+			codes = append(codes, startPort)
 		}
 	}
 	//去重复
 	codes = arrayUnique(codes)
 	return codes
-	//fmt.Println(ports)
+	//fmt.Println(codes)
 }
 
 //转换strng为int
@@ -245,50 +250,51 @@ func difference(slice1, slice2 []int) []int {
 
 // GetPrint  结果显示
 func GetPrint(respCode int,Bodylen string ,url string,path string) {
+
 	if respCode >= 200 && respCode < 300 {
 		Urlpath :=url+path
-		color.Green.Printf("\r%v\t[%v]\t%v\t - %v \n", Time,respCode,Bodylen,Urlpath)
-		Write(Time+"\t"+"["+strconv.Itoa(respCode)+"]"+"\t"+Urlpath,url)
+		color.Green.Printf("\r%v     [%v]     %v\t- %v \n", Time,respCode,Bodylen,Urlpath )
+		Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+Urlpath,url)
 	} else if respCode >= 300 && respCode < 400 {
-		color.Yellow.Printf("\r%v\t[%v]\t%v\t - %v %v \n", Time,respCode, Bodylen, path, Redirect)
-		Write(Time+"\t"+"["+strconv.Itoa(respCode)+"]"+"\t"+ path +"\t"+ Redirect,url)
+		color.Yellow.Printf("\r%v     [%v]     %v\t- %v %v \n", Time,respCode, Bodylen, path, Redirect     )
+		Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+ path +"     "+ Redirect,url)
 	} else if respCode >= 400 && respCode < 500 {
 		if respCode == 403 {
-			color.Red.Printf("\r%v\t[%v]\t%v\t - %v \n", Time,respCode, Bodylen, path)
-			Write(Time+"\t"+"["+strconv.Itoa(respCode)+"]"+"\t"+path,url)
+			color.Red.Printf("\r%v     [%v]     %v    \t- %v \n", Time,respCode, Bodylen, path     )
+			Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+path,url)
 		}else {
-			color.Blue.Printf("\r%v\t[%v]\t%v\t - %v \n", Time,respCode, Bodylen, path)
+			color.Blue.Printf("\r%v     [%v]     %v    \t- %v \n", Time,respCode, Bodylen, path     )
 		}
-
 	} else if respCode >= 500 && respCode < 600 {
-		color.Cyan.Printf("\r%v\t[%v]\t%v\t - %v \n", Time,respCode, Bodylen, path)
+		color.Cyan.Printf("\r%v     [%v]     %v    \t- %v \n", Time,respCode, Bodylen, path)
 	} else {
-		fmt.Printf("\r%v\t[%v]\t%v\t - %v \n", Time,respCode, Bodylen, path)
+		fmt.Printf("\r%v     [%v]     %v    \t- %v \n", Time,respCode, Bodylen, path)
 	}
+
 
 
 }
 
 // HeadPrint 结果显示
 func HeadPrint(respCode int ,url string,path string) {
+
 	if respCode >= 200 && respCode < 300 {
 		Urlpath := url + path
-		color.Green.Printf("\r%v - [%v] - %v \n", Time, respCode, Urlpath)
-		Write(Time+"\t"+"["+strconv.Itoa(respCode)+"]"+"\t"+Urlpath, url)
+		color.Green.Printf("\r%v  [%v] - %v \n", Time, respCode, Urlpath)
+		Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+Urlpath, url)
 	} else if respCode >= 300 && respCode < 400 {
-		//Urlpath := url + path
-		color.Yellow.Printf("\r%v- [%v] - %v  %v \n", Time, respCode, path, Redirect)
-		Write(Time+"\t"+"["+strconv.Itoa(respCode)+"]"+"\t"+path+"\t"+Redirect, url)
+		color.Yellow.Printf("\r%v  [%v] - %v  %v \n", Time, respCode, path, Redirect)
+		Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+path+"     "+Redirect, url)
 	} else if respCode >= 400 && respCode < 500 {
 		if respCode == 403 {
-			color.Red.Printf("\r%v- [%v] - %v  \n", Time, respCode, path)
-			Write(Time+"\t"+"["+strconv.Itoa(respCode)+"]"+"\t"+path, url)
+			color.Red.Printf("\r%v  [%v] - %v  \n", Time, respCode, path)
+			Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+path, url)
 		}
-		color.Blue.Printf("\r%v- [%v] - %v  \n", Time, respCode, path)
+		color.Blue.Printf("\r%v  [%v] - %v  \n", Time, respCode, path)
 	} else if respCode >= 500 && respCode < 600 {
-		color.Cyan.Printf("\r%v- [%v] - %v  \n", Time, respCode, path)
+		color.Cyan.Printf("\r%v  [%v] - %v  \n", Time, respCode, path)
 	} else {
-		fmt.Printf("\r%v- [%v] - %v  \n", Time, respCode, path)
+		fmt.Printf("\r%v  [%v] - %v  \n", Time, respCode, path)
 	}
 }
 
@@ -315,10 +321,9 @@ func Recursionchoose(respCode int ,url string,path string) {
 	if (respCode == 200 || respCode == 301  || respCode == 302 || respCode == 403) && IsPath(url+path) == true  {
 		//if  {
 		//color.Green.Println(path, "标记")
-
 		Urlpath := Urll(url+path)
 		BiaoJi = append(BiaoJi, Urlpath)
-		//fmt.Println(urlChan)
+		//fmt.Println(BiaoJi)
 		//Recursionscan(url+path)
 		//}
 	}
@@ -340,15 +345,24 @@ func Defaultfile() {
 		// offset
 		//os.Truncate(filename, 0) //clear
 		n, _ := f.Seek(0, os.SEEK_END)
-		str := `
-//默认字典
+		str := `//默认字典
 Pathfile=./dic/dicc.txt
 
 //默认显示状态码区间
 Rcode=100-599
 
 //默认扫描方式
-Requestmode=G`
+Requestmode=G
+
+//默认线程
+Threads=30
+
+//默认延迟时间
+Timeout=200
+
+//默认排除状态码
+Neglect=404
+`
 		_, err = f.WriteAt([]byte(str), n)
 
 		fmt.Println("【+】write succeed!已重新生成配置文件，请重新运行程序！")

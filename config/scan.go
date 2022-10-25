@@ -3,68 +3,65 @@ package config
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/EDDYCJY/fake-useragent"
 	"github.com/go-resty/resty/v2"
 	"github.com/gookit/color"
-	"golang.org/x/net/context"
-	"golang.org/x/sync/semaphore"
 	"strings"
 	"sync"
 	"time"
 )
 
-const (
-	Weight = 1 // 每个goroutine获取信号量资源的权重
-)
+
 
 var Redirect string
 var BiaoJi []string
-
+var w sync.WaitGroup
 
 
 // Scans 单个扫描
 func Scans(url string) {
-	//fmt.Printf("\r\033[30B  %v\n","test")
-	//setOfDigits := spinner.GenerateNumberSequence(len(ReadFile(Pathfile)))
-	//ss := spinner.New(setOfDigits, 100*time.Millisecond)
-	//进度条设置
-	//ss := spinner.New(spinner.CharSets[35], 100*time.Millisecond)
-	//ss.Color("green")
-	//ss.Start()
-
 
 	//状态码判断是否输入错误
 	CodeIstrue(Codel(Rcode))
-	//CodeIstrue(Codel(Neglect))
+
 
 	//读取目录文件
 	dic := ReadFile(Pathfile)
 
 
-	s := semaphore.NewWeighted(int64(Threads)) //设置线程
+	//设置进度条
+	var bar Bar
+	bar.NewBar(0,len(dic))
 
-	var w sync.WaitGroup
 
 
 
-	//并发扫描
-	for _,path := range dic {
-		w.Add(1)
-		go func(url string,path string) {
-			_ = s.Acquire(context.Background(), Weight)
+	//设置字典管道
+	pathChan:= make(chan string, len(dic))
+
+	//生产者
+	for _,v := range dic {
+		pathChan  <- v
+	}
+	close(pathChan)
+
+
+
+	//设置线程阻塞
+	w.Add(Threads)
+	//消费者
+	for i:=0; i<Threads; i++{
+		//go func(url string,pathChan chan string,w sync.WaitGroup) {
 			if Requestmode == "G" {
 				//fmt.Println("a:",runtime.NumGoroutine())
-				GetScan(url,path)
+				go GetScan(url,pathChan,&w,&bar)
 			}else if Requestmode == "H" {
-				HeadScan(url,path)
+				go HeadScan(url,pathChan,&w,&bar)
 			}
-
-			s.Release(Weight)
-			w.Done()
-		}(url,path)
-
+		//}(url,pathChan,w)
 	}
-
 	w.Wait()
+
 
 	//递归扫描
 	if Recursion == true {
@@ -81,11 +78,11 @@ func Scans(url string) {
 			time.Sleep(200 * time.Millisecond)
 			Scans(newurl)
 		}else {
-			color.Red.Println("[!] 递归扫描结束")
+			color.Red.Printf("[!] 递归扫描结束\n")
 		}
 	}
 
-	//ss.Stop()
+	bar.Close()
 }
 
 
@@ -103,9 +100,20 @@ func Scanes() {
 }
 
 // HeadScan Scan Head扫描
-func HeadScan(url string,path string) {
+func HeadScan(url string,pathChan <- chan string,w *sync.WaitGroup,bar *Bar) {
+	for path := range pathChan {
+		client := resty.New().SetTimeout(time.Duration(Timeout)*time.Second).
+			SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).
+			SetRedirectPolicy(resty.FlexibleRedirectPolicy(20), resty.DomainCheckRedirectPolicy("host1.com", "host2.org", "host3.net"))
+		//client.SetTimeout(3 * time.Second)
+		//随机UA
+		client.SetHeader("User-Agent", browser.Random())
+		client.SetHeader("Content-Type", "application/x-www-form-urlencoded")
+		//http代理
+		//if Httpproxy != "" {
+		//	client.SetProxy(Httpproxy)
+		//}
 
-		client := resty.New().SetTimeout(time.Duration(Timeout) * time.Second).SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).SetRedirectPolicy(resty.FlexibleRedirectPolicy(15)).SetRedirectPolicy(resty.FlexibleRedirectPolicy(20),resty.DomainCheckRedirectPolicy("host1.com", "host2.org", "host3.net"))
 		resp, err := client.R().
 			Head(url + path)
 		if err != nil {
@@ -116,73 +124,85 @@ func HeadScan(url string,path string) {
 
 		respCode := resp.StatusCode()
 
-	if Neglect == "" {
-		//状态码筛选
-		codes := Codel(Rcode)
-		for _, code := range codes {
-			if respCode == code {
-				HeadPrint(respCode,url,path)
+			//指定状态码排除
+			codes := Codel(Rcode)
+			nocodes := Codel(Neglect)
+			newcodes := difference(codes, nocodes)
+			for _, code := range newcodes {
+				if respCode == code {
+					HeadPrint(respCode, url, path)
+				}
 			}
+
+
+
+		if Recursion == true {
+			Recursionchoose(respCode, url, path)
 		}
-	}else {
-		//指定状态码排除
-		codes := Codel(Rcode)
-		nocodes :=Codel(Neglect)
-		newcodes := difference(codes, nocodes)
-		for _, code := range newcodes {
-			if respCode == code {
-				HeadPrint(respCode,url,path)
-			}
-		}
+		//进度条计数
+		bar.Add(1)
 
 	}
+	w.Done()
 
-	if Recursion == true {
-		Recursionchoose(respCode,url,path)
-	}
 
 }
 
 // GetScan Getscan  Get扫描
-func GetScan(url string, path string) {
-	client := resty.New().SetTimeout(time.Duration(Timeout) *time.Second).SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).SetRedirectPolicy(resty.FlexibleRedirectPolicy(15)).SetRedirectPolicy(resty.FlexibleRedirectPolicy(20), resty.DomainCheckRedirectPolicy("host1.com", "host2.org", "host3.net"))
-	resp, err := client.R().
-		Get(url + path)
-	if err != nil {
-		//fmt.Println(err)
-		s1 := strings.Replace(err.Error(), "\": redirect is not allowed as per DomainCheckRedirectPolicy", "", -1)
-		s2 := strings.Replace(s1, "Get \"", "--> ", -1)
-		Redirect = s2
-	}
-
-	respCode := resp.StatusCode()
-	Bodylen := Storage(len(resp.Body()))
-
-
-	//fmt.Println(url+path, respCode)
-	if Neglect == "" {
-		//状态码筛选
-		codes := Codel(Rcode)
-		for _, code := range codes {
-			if respCode == code {
-				GetPrint(respCode,Bodylen,url,path)
+func GetScan(url string,pathChan <- chan string,w *sync.WaitGroup,bar *Bar)  {
+		for path := range pathChan {
+			//延迟
+			client := resty.New().SetTimeout(time.Duration(Timeout) * time.Millisecond).
+				//忽略https证书
+				SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).
+				//302跳转
+				SetRedirectPolicy(resty.FlexibleRedirectPolicy(20),
+					resty.DomainCheckRedirectPolicy("host1.com", "host2.org", "host3.net"))
+			//随机UA
+			client.SetHeader("User-Agent", browser.Random())
+			//设置Content-Type
+			client.SetHeader("Content-Type", "application/x-www-form-urlencoded")
+			//http代理
+			//if Httpproxy != "" {
+			//	client.SetProxy(Httpproxy)
+			//}
+			//Get请求
+			resp, err := client.R().
+				Get(url + path)
+			if err != nil {
+				//302跳转返回值处理
+				s1 := strings.Replace(err.Error(), "\": redirect is not allowed as per DomainCheckRedirectPolicy", "", -1)
+				s2 := strings.Replace(s1, "Get \"", "--> ", -1)
+				Redirect = s2
 			}
-		}
-	}else {
-		//指定状态码排除
-		codes := Codel(Rcode)
-		nocodes :=Codel(Neglect)
-		newcodes := difference(codes, nocodes)
-		for _, code := range newcodes {
-			if respCode == code {
-				GetPrint(respCode,Bodylen,url,path)
-			}
-		}
-	}
 
-	if Recursion == true {
-		Recursionchoose(respCode,url,path)
-	}
+			//respTime := resp.Time()   //从发送请求到收到响应的时间；
+			//respRece :=resp.ReceivedAt() // 接收到响应的时刻
+			respCode := resp.StatusCode()
+			Bodylen := Storage(len(resp.Body()))
+
+				//指定状态码排除
+				codes := Codel(Rcode)
+				nocodes := Codel(Neglect)
+				newcodes := difference(codes, nocodes)
+				for _, code := range newcodes {
+					if respCode == code {
+						GetPrint(respCode, Bodylen, url, path)
+
+					}
+				}
+
+
+			if Recursion == true {
+				Recursionchoose(respCode, url, path)
+			}
+
+		//进度条计数
+			bar.Add(1)
+
+		}
+	// 消费完毕则调用 Done，减少需要等待的线程
+	w.Done()
 
 }
 

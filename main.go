@@ -14,20 +14,21 @@ func main() {
 	start := time.Now()
 
 
-	if config.Url == "" && config.Urlfile == ""{
-		fmt.Println("请输入-h查看帮助！")
-	}else if config.Url != "" {
+	if config.Url != "" && config.Urlfile == ""{
 		//进行单url扫描
 		config.Tishi()
 		url := config.Urll(config.Url)
 		config.Scans(url)
-	}else if config.Urlfile != "" {
+	}else if config.Urlfile != "" && config.Url == ""{
 		config.Tishis()
 		config.Scanes()
+	}else {
+		fmt.Println("请输入-h查看帮助！")
 	}
 
 
 
-	end := time.Since(start)
-	color.Cyan.Println("运行时间为:", end)
+	end := time.Now().Sub(start)
+
+	color.HiGreen.Printf("运行时间为: %v\n", end)
 }
