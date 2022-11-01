@@ -28,7 +28,7 @@ func main() {
 
 
 
-	end := time.Now().Sub(start)
+	end := time.Since(start)
 
 	color.HiGreen.Printf("运行时间为: %v\n", end)
 }
