@@ -253,10 +253,10 @@ func GetPrint(respCode int,Bodylen string ,url string,path string) {
 
 	if respCode >= 200 && respCode < 300 {
 		Urlpath :=url+path
-		color.Green.Printf("\r%v     [%v]     %v\t- %v \n", Time,respCode,Bodylen,Urlpath )
+		color.Green.Printf("\r%v     [%v]     %v    \t- %v \n", Time,respCode,Bodylen,Urlpath )
 		Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+Urlpath,url)
 	} else if respCode >= 300 && respCode < 400 {
-		color.Yellow.Printf("\r%v     [%v]     %v\t- %v %v \n", Time,respCode, Bodylen, path, Redirect     )
+		color.Yellow.Printf("\r%v     [%v]     %v    \t- %v %v \n", Time,respCode, Bodylen, path, Redirect     )
 		Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+ path +"     "+ Redirect,url)
 	} else if respCode >= 400 && respCode < 500 {
 		if respCode == 403 {
@@ -349,7 +349,7 @@ func Defaultfile() {
 Pathfile=./dic/dicc.txt
 
 //默认显示状态码区间
-Rcode=100-599
+Rcode=100-403,405-599
 
 //默认扫描方式
 Requestmode=G
