@@ -96,5 +96,5 @@ func (bar *Bar) Clear() {
 }
 
 func (bar *Bar) Close() {
-	fmt.Println(" ")
+	fmt.Println("")
 }

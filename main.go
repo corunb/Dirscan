@@ -17,8 +17,11 @@ func main() {
 	if config.Url != "" && config.Urlfile == ""{
 		//进行单url扫描
 		config.Tishi()
-		url := config.Urll(config.Url)
-		config.Scans(url)
+		Turl := config.Urll(config.Url)
+		if config.FindUrl(Turl) == true {
+			config.Scans(Turl)
+		}
+
 	}else if config.Urlfile != "" && config.Url == ""{
 		config.Tishis()
 		config.Scanes()
@@ -30,5 +33,5 @@ func main() {
 
 	end := time.Since(start)
 
-	color.HiGreen.Printf("运行时间为: %v\n", end)
+	color.HiGreen.Printf("\n运行时间为: %v\n", end)
 }

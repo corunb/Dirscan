@@ -3,9 +3,10 @@ package config
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/EDDYCJY/fake-useragent"
-	"github.com/go-resty/resty/v2"
 	"github.com/gookit/color"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -13,13 +14,13 @@ import (
 
 
 
-var Redirect string
+
 var BiaoJi []string
 var w sync.WaitGroup
 
 
 // Scans 单个扫描
-func Scans(url string) {
+func Scans(Turl string) {
 
 	//状态码判断是否输入错误
 	CodeIstrue(Codel(Rcode))
@@ -54,9 +55,9 @@ func Scans(url string) {
 		//go func(url string,pathChan chan string,w sync.WaitGroup) {
 			if Requestmode == "G" {
 				//fmt.Println("a:",runtime.NumGoroutine())
-				go GetScan(url,pathChan,&w,&bar)
+				go GetScan(Turl,pathChan,&w,&bar)
 			}else if Requestmode == "H" {
-				go HeadScan(url,pathChan,&w,&bar)
+				go HeadScan(Turl,pathChan,&w,&bar)
 			}
 		//}(url,pathChan,w)
 	}
@@ -73,16 +74,15 @@ func Scans(url string) {
 			newurl := Urll(BiaoJi[0])
 			//删除数据得第一个元素
 			BiaoJi = BiaoJi[1:]
-			fmt.Println("")
+			fmt.Println(" ")
 			color.Green.Printf("target: %v \n",newurl)
 			time.Sleep(200 * time.Millisecond)
 			Scans(newurl)
 		}else {
-			color.Red.Printf("[!] 递归扫描结束\n")
+			color.Red.Printf("\n[!] 递归扫描结束")
 		}
 	}
-
-	bar.Close()
+	//bar.Close()
 }
 
 
@@ -92,37 +92,63 @@ func Scanes() {
 	urls := ReadFile(Urlfile)
 
 	//遍历url
-	for _,url := range urls {
-
-		Scans(Urll(url))
+	for _, surl := range urls {
+		Turl := Urll(surl)
+		if FindUrl(Turl) == true {
+			Scans(Turl)
+		}
 	}
 
 }
 
 // HeadScan Scan Head扫描
-func HeadScan(url string,pathChan <- chan string,w *sync.WaitGroup,bar *Bar) {
+func HeadScan(Turl string,pathChan <- chan string,w *sync.WaitGroup,bar *Bar) {
 	for path := range pathChan {
-		client := resty.New().SetTimeout(time.Duration(Timeout)*time.Second).
-			SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).
-			SetRedirectPolicy(resty.FlexibleRedirectPolicy(20), resty.DomainCheckRedirectPolicy("host1.com", "host2.org", "host3.net"))
-		//client.SetTimeout(3 * time.Second)
-		//随机UA
-		client.SetHeader("User-Agent", browser.Random())
-		client.SetHeader("Content-Type", "application/x-www-form-urlencoded")
-		//http代理
-		//if Httpproxy != "" {
-		//	client.SetProxy(Httpproxy)
-		//}
 
-		resp, err := client.R().
-			Head(url + path)
-		if err != nil {
-			s1 := strings.Replace(err.Error(), "\": redirect is not allowed as per DomainCheckRedirectPolicy", "", -1)
-			s2 := strings.Replace(s1, "Head \"", "--> ", -1)
-			Redirect = s2
+		tr := &http.Transport{
+			TLSClientConfig:    &tls.Config{InsecureSkipVerify: true},   //忽略http证书
+			IdleConnTimeout: 	3 * time.Second,
+			MaxConnsPerHost:     5,		//每个host可以发出的最大连接个数（包括长链接和短链接），是非常有用的参数，可以用来对socket数量进行限制
+			MaxIdleConns:        0,    	//host的最大链接数量,0表示无限大
+			MaxIdleConnsPerHost: 10,	//连接池对每个host的最大链接数量
+			DisableKeepAlives:   false,
 		}
 
-		respCode := resp.StatusCode()
+		if Proxy != "" {
+			u,_ := url.Parse(Proxy)
+			if strings.ToLower(u.Scheme) !="socks5" {   	 	//判断前缀走什么代理
+				tr.Proxy = http.ProxyURL(u)   					//代理 URL 返回一个代理函数（用于传输），该函数始终返回相同的 URL。
+			}else {
+				dialer,err := Socks5Dailer(u.String())  	 	//获取dialer，走socks5代理
+				tr.Dial = dialer.Dial    						//传入socks5参数
+				if err != nil {
+					fmt.Println("error:", err)
+					return
+				}
+			}
+		}
+
+
+		//设置客户端
+		client := &http.Client{
+			Transport: tr,
+			Timeout: time.Duration(Timeout) * time.Second, 							//等待时间
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {    //获取302
+				return http.ErrUseLastResponse
+			},
+		}
+		//设置请求
+		req, _ := http.NewRequest("GET", Turl+path, nil)
+		req.Header.Set("User-Agent", Uas)				//设置随机UA头
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		//发送请求
+		resp, _ := client.Do(req)
+
+
+		if resp != nil {
+			Rurl := resp.Header.Get("location") //获取302跳转的url
+
+			respCode := resp.StatusCode //状态码
 
 			//指定状态码排除
 			codes := Codel(Rcode)
@@ -130,15 +156,15 @@ func HeadScan(url string,pathChan <- chan string,w *sync.WaitGroup,bar *Bar) {
 			newcodes := difference(codes, nocodes)
 			for _, code := range newcodes {
 				if respCode == code {
-					HeadPrint(respCode, url, path)
+					HeadPrint(respCode, Turl, path,Rurl)
 				}
 			}
 
-
-
-		if Recursion == true {
-			Recursionchoose(respCode, url, path)
+			if Recursion == true {
+				Recursionchoose(respCode, Turl, path)
+			}
 		}
+
 		//进度条计数
 		bar.Add(1)
 
@@ -149,37 +175,55 @@ func HeadScan(url string,pathChan <- chan string,w *sync.WaitGroup,bar *Bar) {
 }
 
 // GetScan Getscan  Get扫描
-func GetScan(url string,pathChan <- chan string,w *sync.WaitGroup,bar *Bar)  {
+func GetScan(Turl string,pathChan <- chan string,w *sync.WaitGroup,bar *Bar)  {
 		for path := range pathChan {
-			//延迟
-			client := resty.New().SetTimeout(time.Duration(Timeout) * time.Millisecond).
-				//忽略https证书
-				SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).
-				//302跳转
-				SetRedirectPolicy(resty.FlexibleRedirectPolicy(20),
-					resty.DomainCheckRedirectPolicy("host1.com", "host2.org", "host3.net"))
-			//随机UA
-			client.SetHeader("User-Agent", browser.Random())
-			//设置Content-Type
-			client.SetHeader("Content-Type", "application/x-www-form-urlencoded")
-			//http代理
-			//if Httpproxy != "" {
-			//	client.SetProxy(Httpproxy)
-			//}
-			//Get请求
-			resp, err := client.R().
-				Get(url + path)
-			if err != nil {
-				//302跳转返回值处理
-				s1 := strings.Replace(err.Error(), "\": redirect is not allowed as per DomainCheckRedirectPolicy", "", -1)
-				s2 := strings.Replace(s1, "Get \"", "--> ", -1)
-				Redirect = s2
+
+			tr := &http.Transport{
+				TLSClientConfig:    &tls.Config{InsecureSkipVerify: true},   //忽略http证书
+				IdleConnTimeout: 	3 * time.Second,
+				MaxConnsPerHost:     5,		//每个host可以发出的最大连接个数（包括长链接和短链接），是非常有用的参数，可以用来对socket数量进行限制
+				MaxIdleConns:        0,    	//host的最大链接数量,0表示无限大
+				MaxIdleConnsPerHost: 10,	//连接池对每个host的最大链接数量
+			}
+			if Proxy != "" {
+				u,_ := url.Parse(Proxy)
+				if strings.ToLower(u.Scheme) !="socks5" {   	 	//判断前缀走什么代理
+					tr.Proxy = http.ProxyURL(u)   					//代理 URL 返回一个代理函数（用于传输），该函数始终返回相同的 URL。
+				}else {
+					dialer,err := Socks5Dailer(u.String())  	 	//获取dialer，走socks5代理
+					tr.Dial = dialer.Dial    						//传入socks5参数
+					if err != nil {
+						fmt.Println("error:", err)
+						return
+					}
+				}
 			}
 
-			//respTime := resp.Time()   //从发送请求到收到响应的时间；
-			//respRece :=resp.ReceivedAt() // 接收到响应的时刻
-			respCode := resp.StatusCode()
-			Bodylen := Storage(len(resp.Body()))
+
+
+			//设置客户端
+			client := &http.Client{
+				Transport: tr,
+				Timeout: time.Duration(Timeout) * time.Second,						//等待时间
+				CheckRedirect: func(req *http.Request, via []*http.Request) error {    //获取302
+					return http.ErrUseLastResponse
+				},
+			}
+			//设置请求
+			req, _ := http.NewRequest("GET", Turl+path, nil)
+			req.Header.Set("User-Agent", Uas )				//设置随机UA头
+			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			//发送请求
+			resp, _ := client.Do(req)
+
+
+			if resp != nil {
+				Rurl := resp.Header.Get("location")						//获取302跳转的url
+
+				body, _ := ioutil.ReadAll(resp.Body)
+				Bodylen := Storage(len(body))
+				//fmt.Println(string(body))
+				respCode := resp.StatusCode										//状态码
 
 				//指定状态码排除
 				codes := Codel(Rcode)
@@ -187,15 +231,16 @@ func GetScan(url string,pathChan <- chan string,w *sync.WaitGroup,bar *Bar)  {
 				newcodes := difference(codes, nocodes)
 				for _, code := range newcodes {
 					if respCode == code {
-						GetPrint(respCode, Bodylen, url, path)
-
+						GetPrint(respCode, Bodylen, Turl, path,Rurl)
 					}
 				}
 
+				if Recursion == true {
+					Recursionchoose(respCode, Turl, path)
+				}
 
-			if Recursion == true {
-				Recursionchoose(respCode, url, path)
 			}
+
 
 		//进度条计数
 			bar.Add(1)

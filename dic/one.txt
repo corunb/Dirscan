@@ -2,7 +2,6 @@
 /.htaccess
 /.identcache
 /.import/
-/
 /admin1/
 /admin2/
 /admin3/
