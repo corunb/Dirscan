@@ -17,7 +17,7 @@ var Outfile string
 var Requestmode string
 var Neglect string
 var Proxy string
-
+var Sitetype string
 
 
 func init() {
@@ -25,6 +25,8 @@ func init() {
 	configs := InitConfig("./default/default.ini")
 	intThreads, _ := strconv.Atoi(configs["Threads"])
 	intTimeout, _ := strconv.Atoi(configs["Timeout"])
+
+	flag.StringVar(&Sitetype, "m","","根据指定类型进行扫描，可设置php,asp,aspx,jsp")
 	flag.StringVar(&Url, "u","","指定url")
 	flag.StringVar(&Urlfile, "uf","","指定url列表")
 	flag.StringVar(&Pathfile, "f",configs["Pathfile"],"指定目录字典")
@@ -50,7 +52,7 @@ func init() {
  ██████████   █████ █████   █████░░█████████  ░░█████████  █████   █████ █████  ░░█████
 ░░░░░░░░░░   ░░░░░ ░░░░░   ░░░░░  ░░░░░░░░░    ░░░░░░░░░  ░░░░░   ░░░░░ ░░░░░    ░░░░░ 
 
-[+] code by Corun V1.4.0
+[+] code by Corun V1.4.1
 [+] https://github.com/corunb/Dirscan
 `
 	color.HiGreen.Println(logo)

@@ -27,7 +27,7 @@ func Scans(Turl string) {
 
 
 	//读取目录文件
-	dic := ReadFile(Pathfile)
+	dic := Typeselection()
 
 
 	//设置进度条

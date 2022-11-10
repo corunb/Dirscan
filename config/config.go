@@ -205,7 +205,7 @@ func Tishi() {
 	////提示
 	fmt.Println("----------------------------------------")
 	color.Red.Printf("[+] 字典:%v \n",Pathfile)
-	color.Red.Printf("[+] 字典数:%v \n",len(ReadFile(Pathfile)))
+	color.Red.Printf("[+] 字典数:%v \n",len(Typeselection()))
 	color.Green.Printf("[+] 线程:%v \n",Threads)
 	color.Green.Printf("[+] 目标:%v \n",Url)
 	fmt.Println("----------------------------------------")
@@ -215,7 +215,7 @@ func Tishis() {
 	////提示
 	fmt.Println("----------------------------------------")
 	color.Red.Printf("[+] 字典:%v \n",Pathfile)
-	color.Red.Printf("[+] 字典数:%v \n",len(ReadFile(Pathfile)))
+	color.Red.Printf("[+] 字典数:%v \n",len(Typeselection()))
 	color.Green.Printf("[+] 线程:%v \n",Threads)
 	color.Green.Printf("[+] 目标数量:%v \n",len(ReadFile(Urlfile)))
 	fmt.Println("----------------------------------------")
@@ -479,4 +479,32 @@ func RandomUa(origin []string, count int) string {
 	}
 	//return value
 	return ua
+}
+
+// Typeselection 针对类型进行处理字典
+func Typeselection() []string{
+
+	dic := ReadFile(Pathfile)
+
+	var outcome []string
+	for _,newdic := range dic {
+		if Sitetype == "php" ||  Sitetype == "asp" ||  Sitetype == "aspx" ||  Sitetype == "jsp"{
+			if strings.Contains(newdic,"%Payload%") == true {
+				a := strings.Replace(newdic, "%Payload%", Sitetype, -1)
+				outcome = append(outcome,a)
+			}else {
+				outcome = append(outcome,newdic)
+			}
+		}else if Sitetype == "" {
+			if strings.Contains(newdic,"%Payload%") != true {
+				outcome = append(outcome,newdic)
+			}
+		}else {
+			fmt.Println("不支持指定的类型！")
+		}
+
+
+	}
+
+	return outcome
 }
