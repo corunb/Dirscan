@@ -49,6 +49,7 @@ Version--> V1.4.2 :
 4. 进度条显示 ✔️
 5. 图形化显示
 6. 随机UA头 ✔️
+7. 反递归扫描
 ```
 
 
@@ -71,7 +72,7 @@ windows:
 
 ```
   -R string
-        指定G->Get扫描还是H->Head扫描 (default "G")
+        指定Get扫描还是Head扫描 (default "GET")
   -T int
         设置线程，默认30 (default 30)
   -c string
@@ -112,10 +113,10 @@ windows:
 #### HEAD 扫描：
 
 ```
-./Dirscan -u http://xxx.xxx.xxx.xxx -R H
+./Dirscan -u http://xxx.xxx.xxx.xxx -R HEAD
 ```
 
-![image-20221109110031415](image//image-20221109110031415.png)
+![image-20221114161325028](image//image-20221114161325028.png)
 
 #### 筛选状态码：
 
@@ -214,7 +215,7 @@ socks5代理：
 
 * [+] 2022.11.10 新增指定类型扫描；
 
-* [+] 2022.11.14 新增指定Cookie;
+* [+] 2022.11.14 新增指定Cookie; 
 
   
 

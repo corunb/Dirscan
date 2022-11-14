@@ -358,7 +358,7 @@ Pathfile=./dic/dicc.txt
 Rcode=100-403,405-599
 
 //默认扫描方式
-Requestmode=G
+Requestmode=GET
 
 //默认线程
 Threads=30

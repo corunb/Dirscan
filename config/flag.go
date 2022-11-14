@@ -36,7 +36,7 @@ func init() {
 	flag.IntVar(&Threads,"T",intThreads,"设置线程，默认30")
 	flag.IntVar(&Timeout,"t",intTimeout,"设置延时时间，默认5s")
 	flag.StringVar(&Outfile, "o","","保存扫描结果,默认输出日期+地址")
-	flag.StringVar(&Requestmode, "R",configs["Requestmode"],"指定G->Get扫描还是H->Head扫描")
+	flag.StringVar(&Requestmode, "R",configs["Requestmode"],"指定Get扫描还是Head扫描")
 	flag.BoolVar(&Recursion,"r",false,"进行递归扫描")
 	flag.StringVar(&Proxy, "p","","proxy，可设置http代理或socks5代理，socks5://admin:corun@x.x.x.x:1080")
 	flag.StringVar(&Cookie, "c",configs["Cookie"],"设置Cookie，默认不加cookie")
