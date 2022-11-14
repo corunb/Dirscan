@@ -18,6 +18,7 @@ var Requestmode string
 var Neglect string
 var Proxy string
 var Sitetype string
+var Cookie string
 
 
 func init() {
@@ -38,6 +39,7 @@ func init() {
 	flag.StringVar(&Requestmode, "R",configs["Requestmode"],"指定G->Get扫描还是H->Head扫描")
 	flag.BoolVar(&Recursion,"r",false,"进行递归扫描")
 	flag.StringVar(&Proxy, "p","","proxy，可设置http代理或socks5代理，socks5://admin:corun@x.x.x.x:1080")
+	flag.StringVar(&Cookie, "c",configs["Cookie"],"设置Cookie，默认不加cookie")
 	flag.Parse()
 
 
@@ -52,7 +54,7 @@ func init() {
  ██████████   █████ █████   █████░░█████████  ░░█████████  █████   █████ █████  ░░█████
 ░░░░░░░░░░   ░░░░░ ░░░░░   ░░░░░  ░░░░░░░░░    ░░░░░░░░░  ░░░░░   ░░░░░ ░░░░░    ░░░░░ 
 
-[+] code by Corun V1.4.1
+[+] code by Corun V1.4.2
 [+] https://github.com/corunb/Dirscan
 `
 	color.HiGreen.Println(logo)

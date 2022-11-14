@@ -141,6 +141,9 @@ func HeadScan(Turl string,pathChan <- chan string,w *sync.WaitGroup,bar *Bar) {
 		req, _ := http.NewRequest("GET", Turl+path, nil)
 		req.Header.Set("User-Agent", Uas)				//设置随机UA头
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		if Cookie != "null" {
+			req.Header.Set("Cookie",Cookie)   //设置cookie
+		}
 		//发送请求
 		resp, _ := client.Do(req)
 
@@ -213,6 +216,10 @@ func GetScan(Turl string,pathChan <- chan string,w *sync.WaitGroup,bar *Bar)  {
 			req, _ := http.NewRequest("GET", Turl+path, nil)
 			req.Header.Set("User-Agent", Uas )				//设置随机UA头
 			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			if Cookie != "null" {
+				req.Header.Set("Cookie",Cookie)   //设置cookie
+			}
+
 			//发送请求
 			resp, _ := client.Do(req)
 

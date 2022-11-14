@@ -368,6 +368,9 @@ Timeout=5
 
 //默认排除状态码
 Neglect=404
+
+//设置Cookie，默认为null时不加Cookie
+Cookie=null
 `
 		_, err = f.WriteAt([]byte(str), n)
 
