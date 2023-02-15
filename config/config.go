@@ -261,7 +261,7 @@ func GetPrint(respCode int,Bodylen string ,url string,path string,Rurl string) {
 	if respCode >= 200 && respCode < 300 {
 		Urlpath :=url+path
 		color.Green.Printf("\r%v     [%v]     %v    \t- %v \n", Time,respCode,Bodylen,Urlpath )
-		Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+Urlpath,url)
+		Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+" ["+Bodylen+"]    "+Urlpath,url)
 	} else if respCode >= 300 && respCode < 400 {
 		color.Yellow.Printf("\r%v     [%v]     %v    \t- %v --> %v \n", Time,respCode, Bodylen, path, Rurl     )
 		Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+ path +"     "+ Rurl,url)
@@ -275,7 +275,7 @@ func GetPrint(respCode int,Bodylen string ,url string,path string,Rurl string) {
 	} else if respCode >= 500 && respCode < 600 {
 		color.Cyan.Printf("\r%v     [%v]     %v    \t- %v \n", Time,respCode, Bodylen, path)
 	} else {
-		fmt.Printf("\r%v     [%v]     %v    \t- %v \n", Time,respCode, Bodylen, path)
+		fmt.Printf( "\r%v     [%v]     %v    \t- %v \n", Time,respCode, Bodylen, path)
 	}
 
 
@@ -394,12 +394,12 @@ func FindUrl(Turl string)  bool{
 		//fmt.Println("正确的url:",Turl)
 		tr := &http.Transport{
 			TLSClientConfig:    &tls.Config{InsecureSkipVerify: true},   //忽略http证书
-			IdleConnTimeout: 	3 * time.Second,
+			IdleConnTimeout: 	5 * time.Second,
 			DisableKeepAlives:   false,
 		}
 		client := &http.Client{
 			Transport: tr,
-			Timeout: 3 * time.Second,												//等待3s
+			Timeout: 5 * time.Second,												//等待3s
 		}
 
 		req, _ := http.NewRequest("GET", Turl, nil)
