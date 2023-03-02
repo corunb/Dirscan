@@ -83,10 +83,12 @@ func Scanes() {
 	for _, surl := range urls {
 		Turl := Urll(surl)
 		if FindUrl(Turl) == true {
-			fmt.Printf("\rtarget: %v\n",Turl)
+			//fmt.Printf("\rtarget: %v\n",Turl)
+			color.Green.Printf("\rtarget: %v\n",Turl)
 			Scans(Turl)
 		}else {
-			fmt.Printf("\rtarget: %v\n",Turl)
+			//fmt.Printf("\rtarget: %v  [!] 目标url无法访问\n",Turl)
+			color.Red.Printf("\rtarget: %v  [!] 目标url无法访问\n",Turl)
 		}
 	}
 

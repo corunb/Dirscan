@@ -415,7 +415,7 @@ func FindUrl(Turl string)  bool{
 			respCode := resp.StatusCode   //状态码
 
 			if respCode <200 && respCode >=501  {
-				fmt.Println("[!] 目标url无法访问")
+				//fmt.Println("[!] 目标url无法访问")
 				result = false
 			}else {
 				//fmt.Println("respCode",respCode)
@@ -423,7 +423,7 @@ func FindUrl(Turl string)  bool{
 			}
 		}else {
 			//fmt.Println("resp:",resp)
-			fmt.Println("[!] 目标url是无法访问")
+			//fmt.Println("[!] 目标url是无法访问")
 			result = false
 		}
 
