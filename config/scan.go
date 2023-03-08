@@ -142,7 +142,7 @@ func GetScan(Turl string, pathChan <-chan string, w *sync.WaitGroup, bar *Bar) {
 			nocodes := Codel(Neglect)
 			newcodes := difference(codes, nocodes)
 			for _, code := range newcodes {
-				if respCode == code {
+				if respCode == code  {
 					GetPrint(respCode, Bodylen, Turl, path, Rurl)
 				}
 			}

@@ -598,7 +598,6 @@
 /monitor/mappings
 /monitor/jolokia
 /monitor/hystrix.stream
-/#/wallboard
 /%20/swagger-ui.html
 /Swagger/ui/index
 /acl/article?id=66

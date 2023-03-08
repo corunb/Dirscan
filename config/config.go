@@ -7,6 +7,7 @@ import (
 	"github.com/gookit/color"
 	"golang.org/x/net/proxy"
 	"io"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -262,7 +263,7 @@ func GetPrint(respCode int,Bodylen string ,url string,path string,Rurl string) {
 		Urlpath :=url+path
 		color.Green.Printf("\r%v     [%v]     %v    \t- %v \n", Time,respCode,Bodylen,Urlpath )
 		Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+" ["+Bodylen+"]    "+Urlpath,url)
-	} else if respCode >= 300 && respCode < 400 {
+	} else if respCode >= 300 && respCode < 400  && JumpUrl(Rurl) == true{
 		color.Yellow.Printf("\r%v     [%v]     %v    \t- %v --> %v \n", Time,respCode, Bodylen, path, Rurl     )
 		Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+ path +"     "+ Rurl,url)
 	} else if respCode >= 400 && respCode < 500 {
@@ -273,10 +274,11 @@ func GetPrint(respCode int,Bodylen string ,url string,path string,Rurl string) {
 			color.Blue.Printf("\r%v     [%v]     %v    \t- %v \n", Time,respCode, Bodylen, path     )
 		}
 	} else if respCode >= 500 && respCode < 600 {
-		color.Cyan.Printf("\r%v     [%v]     %v    \t- %v \n", Time,respCode, Bodylen, path)
-	} else {
-		fmt.Printf( "\r%v     [%v]     %v    \t- %v \n", Time,respCode, Bodylen, path)
+		color.Cyan.Printf("\r%v     [%v]     %v    \t- %v \n", Time, respCode, Bodylen, path)
 	}
+	//} else {
+	//	fmt.Printf( "\r%v     [%v]     %v    \t- %v \n", Time,respCode, Bodylen, path)
+	//}
 
 
 
@@ -289,7 +291,7 @@ func HeadPrint(respCode int ,url string,path string,Rurl string) {
 		Urlpath := url + path
 		color.Green.Printf("\r%v  [%v] - %v \n", Time, respCode, Urlpath)
 		Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+Urlpath, url)
-	} else if respCode >= 300 && respCode < 400 {
+	} else if respCode >= 300 && respCode < 400 && JumpUrl(Rurl) == true{
 		color.Yellow.Printf("\r%v  [%v] - %v  --> %v \n", Time, respCode, path, Rurl)
 		Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+path+"     "+Rurl, url)
 	} else if respCode >= 400 && respCode < 500 {
@@ -300,9 +302,10 @@ func HeadPrint(respCode int ,url string,path string,Rurl string) {
 		color.Blue.Printf("\r%v  [%v] - %v  \n", Time, respCode, path)
 	} else if respCode >= 500 && respCode < 600 {
 		color.Cyan.Printf("\r%v  [%v] - %v  \n", Time, respCode, path)
-	} else {
-		fmt.Printf("\r%v  [%v] - %v  \n", Time, respCode, path)
 	}
+	//} else {
+	//	fmt.Printf("\r%v  [%v] - %v  \n", Time, respCode, path)
+	//}
 }
 
 // RemoveRepByLoop 通过两重循环过滤重复元素数组去重
@@ -430,6 +433,72 @@ func FindUrl(Turl string)  bool{
 	}
 
 	return result
+}
+
+func JumpUrl(Turl string)  bool{
+	var str bool
+	tr := &http.Transport{
+		TLSClientConfig:    &tls.Config{InsecureSkipVerify: true},   //忽略http证书
+		IdleConnTimeout: 	5 * time.Second,
+		DisableKeepAlives:   false,
+	}
+	client := &http.Client{
+		Transport: tr,
+		Timeout: 5 * time.Second,												//等待3s
+	}
+
+	req, _ := http.NewRequest("GET", Turl, nil)
+	if req == nil {
+		//fmt.Println("a")
+	}
+	req.Header.Set("User-Agent", Uas)				//设置随机UA头
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, _ := client.Do(req)
+
+	if resp != nil {
+		respCode := resp.StatusCode //状态码
+		body, _ := ioutil.ReadAll(resp.Body)
+		//对页面的状态码、长度、内容3个方面进行判断，越趋近3的网站，误报越小
+		result := ResCode(respCode) + Lenbody(len(body)) +Resbody(string(body))
+		if result < 2 {
+			str = false
+		}else {
+			str = true
+		}
+	}
+	
+	return str
+}
+
+func ResCode(respCode int) int {
+	var str int
+	if respCode == 200 {
+		str = 1
+	}else {
+		str = 0
+	}
+	return str
+}
+
+func Lenbody(body int) int {
+	var str int
+	if body >500 {
+		str =1
+	}else {
+		str =0
+	}
+	return str
+}
+
+func Resbody(body string) int {
+	var str int
+	if strings.ContainsAny(body,"页面不存在") == false {
+			str = 1
+	}else {
+		str = 0
+	}
+	return str
 }
 
 // Socks5Dailer 代理设置
