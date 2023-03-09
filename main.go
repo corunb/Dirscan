@@ -14,7 +14,6 @@ import (
 func main() {
 	start := time.Now()
 
-
 	if config.Url != "" && config.Urlfile == "" && config.Crawler != true{
 		//进行单url扫描
 		config.Tishi()

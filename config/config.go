@@ -2,15 +2,9 @@ package config
 
 import (
 	"bufio"
-	"crypto/tls"
 	"fmt"
-	"github.com/gookit/color"
-	"golang.org/x/net/proxy"
 	"io"
-	"io/ioutil"
 	"math/rand"
-	"net/http"
-	"net/url"
 	"os"
 	"path"
 	"strconv"
@@ -201,26 +195,7 @@ func InitConfig(path string) map[string]string {
 	return config
 }
 
-// Tishi 提示
-func Tishi() {
-	////提示
-	fmt.Println("----------------------------------------")
-	color.Red.Printf("[+] 字典:%v \n",Pathfile)
-	color.Red.Printf("[+] 字典数:%v \n",len(Typeselection()))
-	color.Green.Printf("[+] 线程:%v \n",Threads)
-	color.Green.Printf("[+] 目标:%v \n",Url)
-	fmt.Println("----------------------------------------")
-}
-// Tishis 提示
-func Tishis() {
-	////提示
-	fmt.Println("----------------------------------------")
-	color.Red.Printf("[+] 字典:%v \n",Pathfile)
-	color.Red.Printf("[+] 字典数:%v \n",len(Typeselection()))
-	color.Green.Printf("[+] 线程:%v \n",Threads)
-	color.Green.Printf("[+] 目标数量:%v \n",len(ReadFile(Urlfile)))
-	fmt.Println("----------------------------------------")
-}
+
 
 //求交集
 func intersect(slice1, slice2 []int) []int {
@@ -256,57 +231,7 @@ func difference(slice1, slice2 []int) []int {
 	return nn
 }
 
-// GetPrint  结果显示
-func GetPrint(respCode int,Bodylen string ,url string,path string,Rurl string) {
 
-	if respCode >= 200 && respCode < 300 {
-		Urlpath :=url+path
-		color.Green.Printf("\r%v     [%v]     %v    \t- %v \n", Time,respCode,Bodylen,Urlpath )
-		Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+" ["+Bodylen+"]    "+Urlpath,url)
-	} else if respCode >= 300 && respCode < 400  && JumpUrl(Rurl) == true{
-		color.Yellow.Printf("\r%v     [%v]     %v    \t- %v --> %v \n", Time,respCode, Bodylen, path, Rurl     )
-		Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+ path +"     "+ Rurl,url)
-	} else if respCode >= 400 && respCode < 500 {
-		if respCode == 403 {
-			color.Red.Printf("\r%v     [%v]     %v    \t- %v \n", Time,respCode, Bodylen, path     )
-			Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+path,url)
-		}else {
-			color.Blue.Printf("\r%v     [%v]     %v    \t- %v \n", Time,respCode, Bodylen, path     )
-		}
-	} else if respCode >= 500 && respCode < 600 {
-		color.Cyan.Printf("\r%v     [%v]     %v    \t- %v \n", Time, respCode, Bodylen, path)
-	}
-	//} else {
-	//	fmt.Printf( "\r%v     [%v]     %v    \t- %v \n", Time,respCode, Bodylen, path)
-	//}
-
-
-
-}
-
-// HeadPrint 结果显示
-func HeadPrint(respCode int ,url string,path string,Rurl string) {
-
-	if respCode >= 200 && respCode < 300 {
-		Urlpath := url + path
-		color.Green.Printf("\r%v  [%v] - %v \n", Time, respCode, Urlpath)
-		Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+Urlpath, url)
-	} else if respCode >= 300 && respCode < 400 && JumpUrl(Rurl) == true{
-		color.Yellow.Printf("\r%v  [%v] - %v  --> %v \n", Time, respCode, path, Rurl)
-		Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+path+"     "+Rurl, url)
-	} else if respCode >= 400 && respCode < 500 {
-		if respCode == 403 {
-			color.Red.Printf("\r%v  [%v] - %v  \n", Time, respCode, path)
-			Write(Time+"     "+"["+strconv.Itoa(respCode)+"]"+"     "+path, url)
-		}
-		color.Blue.Printf("\r%v  [%v] - %v  \n", Time, respCode, path)
-	} else if respCode >= 500 && respCode < 600 {
-		color.Cyan.Printf("\r%v  [%v] - %v  \n", Time, respCode, path)
-	}
-	//} else {
-	//	fmt.Printf("\r%v  [%v] - %v  \n", Time, respCode, path)
-	//}
-}
 
 // RemoveRepByLoop 通过两重循环过滤重复元素数组去重
 func RemoveRepByLoop(slc []string) []string {
@@ -380,153 +305,6 @@ Cookie=null
 		fmt.Println("【+】write succeed!已重新生成配置文件，请重新运行程序！")
 	}
 
-}
-
-// FindUrl 识别http/https,并探存活
-func FindUrl(Turl string)  bool{
-	var result bool
-	u, err := url.Parse(Turl)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	if strings.ToLower(u.Scheme) != "http" && strings.ToLower(u.Scheme) != "https" {
-		fmt.Println("[!] 请输入正确的url!")
-		result = false
-	}else {
-		//fmt.Println("正确的url:",Turl)
-		tr := &http.Transport{
-			TLSClientConfig:    &tls.Config{InsecureSkipVerify: true},   //忽略http证书
-			IdleConnTimeout: 	5 * time.Second,
-			DisableKeepAlives:   false,
-		}
-		client := &http.Client{
-			Transport: tr,
-			Timeout: 5 * time.Second,												//等待3s
-		}
-
-		req, _ := http.NewRequest("GET", Turl, nil)
-		if req == nil {
-			//fmt.Println("a")
-		}
-		req.Header.Set("User-Agent", Uas)				//设置随机UA头
-		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-		resp, _ := client.Do(req)
-
-		if resp != nil {
-			respCode := resp.StatusCode   //状态码
-
-			if respCode <200 && respCode >=501  {
-				//fmt.Println("[!] 目标url无法访问")
-				result = false
-			}else {
-				//fmt.Println("respCode",respCode)
-				result = true
-			}
-		}else {
-			//fmt.Println("resp:",resp)
-			//fmt.Println("[!] 目标url是无法访问")
-			result = false
-		}
-
-	}
-
-	return result
-}
-
-func JumpUrl(Turl string)  bool{
-	var str bool
-	tr := &http.Transport{
-		TLSClientConfig:    &tls.Config{InsecureSkipVerify: true},   //忽略http证书
-		IdleConnTimeout: 	5 * time.Second,
-		DisableKeepAlives:   false,
-	}
-	client := &http.Client{
-		Transport: tr,
-		Timeout: 5 * time.Second,												//等待3s
-	}
-
-	req, _ := http.NewRequest("GET", Turl, nil)
-	if req == nil {
-		//fmt.Println("a")
-	}
-	req.Header.Set("User-Agent", Uas)				//设置随机UA头
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, _ := client.Do(req)
-
-	if resp != nil {
-		respCode := resp.StatusCode //状态码
-		body, _ := ioutil.ReadAll(resp.Body)
-		//对页面的状态码、长度、内容3个方面进行判断，越趋近3的网站，误报越小
-		result := ResCode(respCode) + Lenbody(len(body)) +Resbody(string(body))
-		if result < 2 {
-			str = false
-		}else {
-			str = true
-		}
-	}
-	
-	return str
-}
-
-func ResCode(respCode int) int {
-	var str int
-	if respCode == 200 {
-		str = 1
-	}else {
-		str = 0
-	}
-	return str
-}
-
-func Lenbody(body int) int {
-	var str int
-	if body >500 {
-		str =1
-	}else {
-		str =0
-	}
-	return str
-}
-
-func Resbody(body string) int {
-	var str int
-	if strings.ContainsAny(body,"页面不存在") == false {
-			str = 1
-	}else {
-		str = 0
-	}
-	return str
-}
-
-// Socks5Dailer 代理设置
-func Socks5Dailer(Socks5proxy string) (proxy.Dialer, error) {
-	u, err := url.Parse(Socks5proxy)
-	if err != nil {
-		return nil, err
-	}
-	//if strings.ToLower(u.Scheme) != "socks5" { //strings.ToLower  进行全部小写
-	//	return nil, errors.New("Only support socks5")
-	//}
-	address := u.Host //取host
-	var auth proxy.Auth
-	var dailer proxy.Dialer
-	if u.User.String() != "" {
-		auth = proxy.Auth{}
-		auth.User = u.User.Username()    //取用户名
-		password, _ := u.User.Password() //取密码
-		auth.Password = password
-		dailer, err = proxy.SOCKS5("tcp", address, &auth, proxy.Direct) //设置用户名密码的socks5
-	} else {
-		dailer, err = proxy.SOCKS5("tcp", address, nil, proxy.Direct) //没有设置用户密码的socks5
-	}
-
-	if err != nil {
-		return nil, err
-	}
-	return dailer, nil
 }
 
 // RandomUa 随机UA头
