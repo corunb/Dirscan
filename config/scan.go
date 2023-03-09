@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"sync"
 	"time"
 
@@ -44,6 +45,9 @@ func Scans(Turl string) {
 			go GetScan(Turl, pathChan, &w, &bar)
 		} else if Requestmode == "HEAD" {
 			go HeadScan(Turl, pathChan, &w, &bar)
+		}else{
+			fmt.Println("[!] 请输入正确的请求方式！")
+			os.Exit(0)
 		}
 		//}(url,pathChan,w)
 	}

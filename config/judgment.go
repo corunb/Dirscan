@@ -101,7 +101,7 @@ func Fhundreds(Turl string) bool{
 }
 
 func JumpUrl(Turl string)  (int,[]byte){
-	resp := Request(Turl)
+	resp := GETRequest(Turl)
 	var respCode int
 	var bodys  = []byte(nil)
 	if resp != nil {
