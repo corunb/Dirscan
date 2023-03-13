@@ -44,8 +44,7 @@ func FindUrl(Turl string)  bool{
 }
 
 // Thundred 对200的页面进行识别判断
-func Thundred(Turl string) bool{
-	_ , body := JumpUrl(Turl)
+func Thundred(body []byte) bool{
 	var str bool
 	//对页面的长度、内容2个方面进行判断，越趋近3的网站，误报越小
 	result :=  Lenbody(len(body)) +Resbodya(string(body))
@@ -73,8 +72,7 @@ func Redirect(Turl string) bool{
 }
 
 // Thundreds 判断400-500
-func Thundreds(Turl string) bool{
-	_ , body := JumpUrl(Turl)
+func Thundreds(body []byte) bool{
 	var str bool
 	//对页面的长度、内容2个方面进行判断，越趋近3的网站，误报越小
 	result :=  Lenbody(len(body)) +Resbodyb(string(body))
@@ -87,8 +85,7 @@ func Thundreds(Turl string) bool{
 }
 
 // Fhundreds 判断500的页面
-func Fhundreds(Turl string) bool{
-	_ , body := JumpUrl(Turl)
+func Fhundreds(body []byte) bool{
 	var str bool
 	//对页面的长度进行判断，越趋近2的网站，误报越小
 	result :=   Lenbody(len(body))
@@ -114,7 +111,7 @@ func JumpUrl(Turl string)  (int,[]byte){
 
 func ResCode(respCode int) int {
 	var str int
-	if respCode == 200 {
+	if respCode >= 200 && respCode <300 || respCode >= 400 && respCode < 600  {
 		str = 1
 	}else {
 		str = 0

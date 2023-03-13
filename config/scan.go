@@ -101,7 +101,6 @@ func HeadScan(Turl string, pathChan <-chan string, w *sync.WaitGroup, bar *Bar) 
 		resp := Request( Targeturl)
 		if resp != nil {
 			Rurl := resp.Header.Get("location") //获取302跳转的url
-
 			respCode := resp.StatusCode //状态码
 
 			//指定状态码排除
@@ -144,7 +143,7 @@ func GetScan(Turl string, pathChan <-chan string, w *sync.WaitGroup, bar *Bar) {
 			newcodes := difference(codes, nocodes)
 			for _, code := range newcodes {
 				if respCode == code  {
-					GetPrint(respCode, Bodylen, Turl, path, Rurl)
+					GetPrint(respCode, Bodylen,body, Turl, path, Rurl)
 				}
 			}
 

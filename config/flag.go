@@ -56,7 +56,7 @@ func init() {
  ██████████   █████ █████   █████░░█████████  ░░█████████  █████   █████ █████  ░░█████
 ░░░░░░░░░░   ░░░░░ ░░░░░   ░░░░░  ░░░░░░░░░    ░░░░░░░░░  ░░░░░   ░░░░░ ░░░░░    ░░░░░ 
 
-[+] code by Corun V1.4.6
+[+] code by Corun V1.4.7
 [+] https://github.com/corunb/Dirscan
 `
 	color.HiGreen.Println(logo)
