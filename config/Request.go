@@ -20,17 +20,10 @@ func Request(Targeturl string) *http.Response {
 		MaxIdleConns:        0,  //host的最大链接数量,0表示无限大
 		MaxIdleConnsPerHost: 10, //连接池对每个host的最大链接数量
 	}
-	if Proxy != "" {
-		u, _ := url.Parse(Proxy)
-		if strings.ToLower(u.Scheme) != "socks5" { //判断前缀走什么代理
-			tr.Proxy = http.ProxyURL(u) //代理 URL 返回一个代理函数（用于传输），该函数始终返回相同的 URL。
-		} else {
-			dialer, err := Socks5Dailer(u.String()) //获取dialer，走socks5代理
-			tr.Dial = dialer.Dial                   //传入socks5参数
-			if err != nil {
-				fmt.Println("error:", err)
-			}
-		}
+	if Proxy != ""  && ProxyFile == ""{
+		Proxyset(tr,Proxy)
+	}else if Proxy == ""  && ProxyFile != ""{
+		Proxyset(tr,NewProxy)
 	}
 
 	//设置客户端
@@ -137,3 +130,17 @@ func Socks5Dailer(Socks5proxy string) (proxy.Dialer, error) {
 	}
 	return dailer, nil
 }
+
+func Proxyset(tr *http.Transport,proxy string ) {
+	u, _ := url.Parse(proxy)
+	if strings.ToLower(u.Scheme) != "socks5" { //判断前缀走什么代理
+		tr.Proxy = http.ProxyURL(u) //代理 URL 返回一个代理函数（用于传输），该函数始终返回相同的 URL。
+	} else {
+		dialer, err := Socks5Dailer(u.String()) //获取dialer，走socks5代理
+		tr.Dial = dialer.Dial                   //传入socks5参数
+		if err != nil {
+			fmt.Println("error:", err)
+		}
+	}
+}
+

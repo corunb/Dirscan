@@ -17,9 +17,11 @@ var Outfile string
 var Requestmode string
 var Neglect string
 var Proxy string
+var ProxyFile string
 var Sitetype string
 var Cookie string
 var Crawler bool
+var NewProxy string
 
 
 func init() {
@@ -40,10 +42,15 @@ func init() {
 	flag.StringVar(&Requestmode, "R",configs["Requestmode"],"指定Get扫描还是Head扫描")
 	flag.BoolVar(&Recursion,"r",false,"进行递归扫描")
 	flag.StringVar(&Proxy, "p","","proxy，可设置http代理或socks5代理，socks5://admin:corun@x.x.x.x:1080")
+	flag.StringVar(&ProxyFile, "pf","","指定Proxy列表,进行随机切换")
 	flag.StringVar(&Cookie, "c",configs["Cookie"],"设置Cookie，默认不加cookie")
 	flag.BoolVar(&Crawler,"C",false,"进行爬虫")
 	flag.Parse()
 
+
+	if ProxyFile != "" {
+		NewProxy = Randomget(ReadFile(ProxyFile),1)
+	}
 
 	logo := `
 
@@ -56,10 +63,12 @@ func init() {
  ██████████   █████ █████   █████░░█████████  ░░█████████  █████   █████ █████  ░░█████
 ░░░░░░░░░░   ░░░░░ ░░░░░   ░░░░░  ░░░░░░░░░    ░░░░░░░░░  ░░░░░   ░░░░░ ░░░░░    ░░░░░ 
 
-[+] code by Corun V1.4.7
+[+] code by Corun V1.4.8
 [+] https://github.com/corunb/Dirscan
 `
 	color.HiGreen.Println(logo)
+
+
 
 
 }

@@ -35,6 +35,19 @@ func Scans(Turl string) {
 	}
 	close(pathChan)
 
+
+	//定时器
+	if ProxyFile != "" {
+		//每2秒随机切换代理
+		go func() {
+			ticker := time.NewTicker(2 * time.Second)
+			for range ticker.C {
+				NewProxy = Randomget(ReadFile(ProxyFile),1)
+			}
+		}()
+	}
+
+
 	//设置线程阻塞
 	w.Add(Threads)
 	//消费者
@@ -72,6 +85,8 @@ func Scans(Turl string) {
 		}
 	}
 	//bar.Close()
+
+
 }
 
 // Scanes 批量扫描
@@ -137,6 +152,7 @@ func GetScan(Turl string, pathChan <-chan string, w *sync.WaitGroup, bar *Bar) {
 			//fmt.Println(string(body))
 			respCode := resp.StatusCode //状态码
 
+
 			//指定状态码排除
 			codes := Codel(Rcode)
 			nocodes := Codel(Neglect)
@@ -159,4 +175,17 @@ func GetScan(Turl string, pathChan <-chan string, w *sync.WaitGroup, bar *Bar) {
 	w.Done()
 }
 
+
+func Processchecks(Turl string) {
+	//不进行随机代理时，每5秒检查扫描目标的存活
+	go func() {
+		ticker := time.NewTicker(5 * time.Second)
+		for range ticker.C {
+			if !FindUrl(Turl)  {
+				fmt.Printf("\n网站无法访问,疑似waf或网络不通!\n")
+				os.Exit(0)
+			}
+		}
+	}()
+}
 

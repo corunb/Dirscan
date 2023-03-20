@@ -18,7 +18,8 @@ func main() {
 		//进行单url扫描
 		config.Tishi()
 		Turl := config.Urll(config.Url)
-		if config.FindUrl(Turl) == true {
+		if config.FindUrl(Turl)  {
+			config.Processchecks(Turl)
 			config.Scans(Turl)
 		}else {
 			//fmt.Println("[!] 目标url无法访问")
@@ -37,7 +38,7 @@ func main() {
 
 
 
-	end := time.Since(start)
+	end := time.Since(start) 
 
 	color.HiGreen.Printf("\n运行时间为: %v\n", end)
 }

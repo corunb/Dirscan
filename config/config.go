@@ -15,7 +15,7 @@ import (
 
 var Time = time.Now().Format("2006/01/02 15:04:05")
 
-var Uas = RandomUa(ReadFile("./dic/user-agents.txt"),1)
+var Uas = Randomget(ReadFile("./dic/user-agents.txt"),1)
 
 // Codel code 输入范围转换为数组
 func Codel(code string) []int{
@@ -307,8 +307,8 @@ Cookie=null
 
 }
 
-// RandomUa 随机UA头
-func RandomUa(origin []string, count int) string {
+// Randomget  随机获取数组中的一个值
+func Randomget(origin []string, count int) string {
 	tmpOrigin := make([]string, len(origin))
 	copy(tmpOrigin, origin)
 	rand.Seed(time.Now().Unix())   //实现了伪随机数生成器
@@ -317,18 +317,14 @@ func RandomUa(origin []string, count int) string {
 	})
 
 
-	var ua string
-	//result :=make([]string,0,count)
+	var str string
 	for index, value := range tmpOrigin {
 		if index==count{
 			break
 		}
-		//result = append(result,value)
-		//fmt.Println("a",result)
-		ua = value
+		str = value
 	}
-	//return value
-	return ua
+	return str
 }
 
 // Typeselection 针对类型进行处理字典
