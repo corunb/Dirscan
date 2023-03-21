@@ -36,9 +36,10 @@ func Request(Targeturl string) *http.Response {
 	}
 	//设置请求
 	//Turlpath :=  url.QueryEscape(Turl +path)
+	//targeturl := url.QueryEscape(Targeturl)
 	req, err := http.NewRequest(Requestmode, Targeturl, nil)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("a",err)
 	}
 	req.Header.Set("User-Agent", Uas) //设置随机UA头
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")

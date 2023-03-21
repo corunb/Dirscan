@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -18,23 +19,18 @@ func Scans(Turl string) {
 
 	//状态码判断是否输入错误
 	CodeIstrue(Codel(Rcode))
-
 	//读取目录文件
 	dic := Typeselection()
-
 	//设置进度条
 	var bar Bar
 	bar.NewBar(0, len(dic))
-
 	//设置字典管道
 	pathChan := make(chan string, len(dic))
-
 	//生产者
 	for _, v := range dic {
 		pathChan <- v
 	}
 	close(pathChan)
-
 
 	//定时器
 	if ProxyFile != "" {
@@ -85,8 +81,6 @@ func Scans(Turl string) {
 		}
 	}
 	//bar.Close()
-
-
 }
 
 // Scanes 批量扫描
@@ -112,7 +106,7 @@ func Scanes() {
 // HeadScan Scan Head扫描
 func HeadScan(Turl string, pathChan <-chan string, w *sync.WaitGroup, bar *Bar) {
 	for path := range pathChan {
-		Targeturl := Turl + path
+		Targeturl := Turl + strings.Replace(path,"%","%25",-1)
 		resp := Request( Targeturl)
 		if resp != nil {
 			Rurl := resp.Header.Get("location") //获取302跳转的url
@@ -143,15 +137,18 @@ func HeadScan(Turl string, pathChan <-chan string, w *sync.WaitGroup, bar *Bar) 
 // GetScan Getscan  Get扫描
 func GetScan(Turl string, pathChan <-chan string, w *sync.WaitGroup, bar *Bar) {
 	for path := range pathChan {
-		Targeturl := Turl + path
+		Targeturl := Turl + strings.Replace(path,"%","%25",-1)
+		//Targeturl := Turl + path
+		//Targeturl := Turl +`/`+ url.QueryEscape(path)
+		//fmt.Println(Targeturl)
 		resp := Request(Targeturl)
 		if resp != nil {
 			Rurl := resp.Header.Get("location") //获取302跳转的url
 			body, _ := ioutil.ReadAll(resp.Body)
 			Bodylen := Storage(len(body)) //返回长度
+			//fmt.Println(Targeturl)
 			//fmt.Println(string(body))
 			respCode := resp.StatusCode //状态码
-
 
 			//指定状态码排除
 			codes := Codel(Rcode)
@@ -159,6 +156,7 @@ func GetScan(Turl string, pathChan <-chan string, w *sync.WaitGroup, bar *Bar) {
 			newcodes := difference(codes, nocodes)
 			for _, code := range newcodes {
 				if respCode == code  {
+					//fmt.Println(Targeturl)
 					GetPrint(respCode, Bodylen,body, Turl, path, Rurl)
 				}
 			}

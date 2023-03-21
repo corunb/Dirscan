@@ -335,14 +335,14 @@ func Typeselection() []string{
 	var outcome []string
 	for _,newdic := range dic {
 		if Sitetype == "php" ||  Sitetype == "asp" ||  Sitetype == "aspx" ||  Sitetype == "jsp"{
-			if strings.Contains(newdic,"%Payload%") == true {
-				a := strings.Replace(newdic, "%Payload%", Sitetype, -1)
+			if strings.Contains(newdic,"__Payload__") == true {
+				a := strings.Replace(newdic, "__Payload__", Sitetype, -1)
 				outcome = append(outcome,a)
 			}else {
 				outcome = append(outcome,newdic)
 			}
 		}else if Sitetype == "" {
-			if strings.Contains(newdic,"%Payload%") != true {
+			if strings.Contains(newdic,"__Payload__") != true {
 				outcome = append(outcome,newdic)
 			}
 		}else {
