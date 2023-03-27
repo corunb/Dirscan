@@ -176,6 +176,7 @@ func GetScan(Turl string, pathChan <-chan string, w *sync.WaitGroup, bar *Bar) {
 
 func Processchecks(Turl string) {
 	//不进行随机代理时，每5秒检查扫描目标的存活
+if ProxyFile == "" {
 	go func() {
 		ticker := time.NewTicker(5 * time.Second)
 		for range ticker.C {
@@ -185,5 +186,6 @@ func Processchecks(Turl string) {
 			}
 		}
 	}()
+}
 }
 
