@@ -129,15 +129,11 @@ windows:
 默认以 日期+url 进行结果记录的文件名。
 ```
 
-![image-20221109105956145](image//image-20221109105956145.png)
-
 #### HEAD 扫描：
 
 ```
 ./Dirscan -u http://xxx.xxx.xxx.xxx -R HEAD
 ```
-
-![image-20221114161325028](image//image-20221114161325028.png)
 
 #### 筛选状态码：
 
@@ -146,16 +142,12 @@ windows:
 筛选状态码可支持单个/多个，和区间筛选，区间可为 -i 200-302
 ```
 
-![image-20221109110131992](image//image-20221109110131992.png)
-
 #### 递归扫描：
 
 ```
 ./Dirscan -u http://xxx.xxx.xxx.xxx -r -i 200 
 默认对状态码200、301、302、403的目录进行递归扫描。
 ```
-
-![image-20221109110400785](image//image-20221109110400785.png)
 
 #### 线程控制：
 
@@ -164,8 +156,6 @@ windows:
 ./Dirscan -u http://xxx.xxx.xxx.xxx -T 100 -t 10
 ```
 
-![image-20221109115544587](image//image-20221109115544587.png)
-
 
 
 #### 状态码排除
@@ -173,8 +163,6 @@ windows:
 ```
 使用 -ei 301-401,404 可排除状态码显示。
 ```
-
-![image-20221109115453765](image//image-20221109115453765.png)
 
 #### 代理设置
 
@@ -187,10 +175,6 @@ socks5代理：
 ./Dirscan -u http://xxx.xxx.xxx.xxx -p socks5://admin:corun@xx.xx.xx.xx:1080
 ```
 
-![image-20221109111437121](image//image-20221109111437121.png)
-
-![image-20221109115859912](image//image-20221109115859912.png)
-
 #### 指定类型扫描
 
 ```
@@ -198,15 +182,11 @@ socks5代理：
 可指定类型进行扫描，会将字典中的可变字典转换为指定类型的字典。
 ```
 
-![image-20221110100606330](image//image-20221110100606330.png)
-
 #### 字典选择：
 
 ```
 ./Dirscan -u http://xxx.xxx.xxx.xxx -f ./dic/php.txt
 ```
-
-
 
 #### 默认配置加载
 
