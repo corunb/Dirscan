@@ -103,6 +103,27 @@ func Scanes() {
 
 }
 
+// AntiScans 反递归扫描
+func AntiScans(aurl string) {
+	//读取url列表
+	urls := FDGtool(aurl)
+
+	//遍历url
+	for _, Aurl := range urls {
+		Turl := Urll(Aurl)
+		if FindUrl(Turl) == true {
+			//fmt.Printf("\rtarget: %v\n",Turl)
+			color.Green.Printf("\rtarget: %v\n",Turl)
+			Scans(Turl)
+		}else {
+			//fmt.Printf("\rtarget: %v  [!] 目标url无法访问\n",Turl)
+			color.Red.Printf("\rtarget: %v  [!] 目标url无法访问\n",Turl)
+		}
+	}
+
+
+}
+
 // HeadScan Scan Head扫描
 func HeadScan(Turl string, pathChan <-chan string, w *sync.WaitGroup, bar *Bar) {
 	for path := range pathChan {
@@ -173,19 +194,24 @@ func GetScan(Turl string, pathChan <-chan string, w *sync.WaitGroup, bar *Bar) {
 	w.Done()
 }
 
-
+// Processchecks 不进行随机代理时，每5秒检查扫描目标的存活
 func Processchecks(Turl string) {
 	//不进行随机代理时，每5秒检查扫描目标的存活
-if ProxyFile == "" {
-	go func() {
-		ticker := time.NewTicker(5 * time.Second)
-		for range ticker.C {
-			if !FindUrl(Turl)  {
-				fmt.Printf("\n网站无法访问,疑似waf或网络不通!\n")
-				os.Exit(0)
+	if ProxyFile == "" && Checksurvive == false {
+		color.Red.Printf("\r[!] 已开启存活检查！\n")
+		go func() {
+			ticker := time.NewTicker(5 * time.Second)
+			for range ticker.C {
+				if !FindUrl(Turl) {
+					fmt.Printf("\n网站无法访问,疑似waf或网络不通!\n")
+					os.Exit(0)
+				}
 			}
-		}
-	}()
-}
+		}()
+	}else if ProxyFile == "" && Checksurvive == true {
+		color.Red.Printf("\r[*] 已关闭存活检查！\n")
+	}
+
+
 }
 

@@ -2870,6 +2870,10 @@
 /Updates.txt
 /UpgradeLog.XML
 /Upload
+/uapws/
+/uapws/service/
+/uapws/service/nc.uap.oba.update.IUpdateService?wsdl
+/uapws/service/nc.itf.ses.inittool.PortalSESInitToolService
 /UserFile
 /UserFiles
 /UserLogin/
@@ -8573,6 +8577,11 @@
 /user.html
 /user.php
 /user.txt
+/utility/ueditor/net?action=catchimage
+/utility/ueditor/net?action=config
+/utility/ueditor
+/Content/ueditor/ueditor.config.js
+/Content/ueditor/ueditor.all.js
 /user/
 /user/admin
 /user/admin.php

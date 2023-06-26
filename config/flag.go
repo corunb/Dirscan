@@ -22,6 +22,8 @@ var Sitetype string
 var Cookie string
 var Crawler bool
 var NewProxy string
+var Antirecursion bool
+var Checksurvive bool
 
 
 func init() {
@@ -45,6 +47,8 @@ func init() {
 	flag.StringVar(&ProxyFile, "pf","","指定Proxy列表,进行随机切换")
 	flag.StringVar(&Cookie, "c",configs["Cookie"],"设置Cookie，默认不加cookie")
 	flag.BoolVar(&Crawler,"C",false,"进行爬虫")
+	flag.BoolVar(&Antirecursion,"Ar",false,"进行反递归扫描")
+	flag.BoolVar(&Checksurvive,"Cs",false,"进行每5秒检查网站存活，默认是开的")
 	flag.Parse()
 
 
@@ -63,7 +67,7 @@ func init() {
  ██████████   █████ █████   █████░░█████████  ░░█████████  █████   █████ █████  ░░█████
 ░░░░░░░░░░   ░░░░░ ░░░░░   ░░░░░  ░░░░░░░░░    ░░░░░░░░░  ░░░░░   ░░░░░ ░░░░░    ░░░░░ 
 
-[+] code by Corun V1.5.0
+[+] code by Corun V1.5.1
 [+] https://github.com/corunb/Dirscan
 `
 	color.HiGreen.Println(logo)

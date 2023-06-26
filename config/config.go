@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"net/url"
 	"os"
 	"path"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -253,7 +255,7 @@ func RemoveRepByLoop(slc []string) []string {
 
 // Recursionchoose 递归扫描的数据存储
 func Recursionchoose(respCode int ,url string,path string) {
-	if (respCode == 200 || respCode == 301  || respCode == 302 || respCode == 403) && IsPath(url+path) == true  {
+	if (respCode == 200 || respCode == 403) && IsPath(url+path) == true  {
 		if strings.Contains(path,"/etc/passwd") != true {
 			Urlpath := Urll(url+path)
 			BiaoJi = append(BiaoJi, Urlpath)
@@ -353,4 +355,31 @@ func Typeselection() []string{
 	}
 
 	return outcome
+}
+
+// FDGtool 反递归url字典生成
+func FDGtool(Url string) []string {
+	parsedURL, err := url.Parse(Url)
+	if err != nil {
+		fmt.Println("URL 解析错误:", err)
+	}
+
+	// 获取路径并删除首尾的斜杠
+	urlpath := strings.Trim(parsedURL.Path, "/")
+
+	// 将路径按斜杠分割为目录数组
+	directories := strings.Split(urlpath, "/")
+
+	// 构建每个目录的完整URL
+	var urls []string
+	for i := 0; i <= len(directories); i++ {
+		dir := strings.Join(directories[:i], "/") + "/"
+		Url := parsedURL.Scheme + "://" + parsedURL.Host + "/" + dir
+		urls = append(urls, Url)
+	}
+
+	// 对URL列表进行倒序排列
+	sort.Sort(sort.Reverse(sort.StringSlice(urls)))
+
+	return urls
 }
