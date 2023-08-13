@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -255,12 +256,15 @@ func RemoveRepByLoop(slc []string) []string {
 
 // Recursionchoose 递归扫描的数据存储
 func Recursionchoose(respCode int ,url string,path string) {
-	if (respCode == 200 || respCode == 403) && IsPath(url+path) == true  {
-		if strings.Contains(path,"/etc/passwd") != true {
+	if (respCode == 200 ||respCode == 301 || respCode == 302 || respCode == 403) && IsPath(Urll(path)) == true  {
+		// 正则表达式模式，匹配以 /etc/ 开头的路径
+		pattern := "^/etc/.*$"
+		match, _ := regexp.MatchString(pattern, path)
+		if match != true {
 			Urlpath := Urll(url+path)
+			//color.Green.Printf("\rAdd: %v                                \n", Urlpath )
 			BiaoJi = append(BiaoJi, Urlpath)
 		}
-
 
 	}
 }

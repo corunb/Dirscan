@@ -73,7 +73,7 @@ func Scans(Turl string) {
 			//删除数据得第一个元素
 			BiaoJi = BiaoJi[1:]
 			fmt.Println(" ")
-			color.Green.Printf("target: %v \n", newurl)
+			color.Green.Printf("Target: %v \n", newurl)
 			time.Sleep(200 * time.Millisecond)
 			Scans(newurl)
 		} else {
@@ -140,12 +140,13 @@ func HeadScan(Turl string, pathChan <-chan string, w *sync.WaitGroup, bar *Bar) 
 			for _, code := range newcodes {
 				if respCode == code {
 					HeadPrint(respCode, Turl, path, Rurl)
+					if Recursion == true {
+						Recursionchoose(respCode, Turl, path)
+					}
 				}
 			}
 
-			if Recursion == true {
-				Recursionchoose(respCode, Turl, path)
-			}
+
 		}
 		//进度条计数
 		bar.Add(1)
@@ -179,11 +180,12 @@ func GetScan(Turl string, pathChan <-chan string, w *sync.WaitGroup, bar *Bar) {
 				if respCode == code  {
 					//fmt.Println(Targeturl)
 					GetPrint(respCode, Bodylen,body, Turl, path, Rurl)
-				}
-			}
 
-			if Recursion == true {
-				Recursionchoose(respCode, Turl, path)
+					//记录递归扫描的目录
+					if Recursion == true {
+						Recursionchoose(respCode, Turl, path)
+					}
+				}
 			}
 
 		}
